@@ -1,0 +1,37 @@
+variables:
+  PROJECT_NAME: dockeraws-0.0.1-SNAPSHOT
+
+
+# Node gradle image on which this would be run to build the project
+image: gradle:4.10.2
+
+stages:
+- build
+- test
+
+# Build and Test are two different jobs in the same stage.
+# This allows us to run these two sequentially and making build faster
+
+# Job 1:
+Build:
+  stage: build
+  cache:
+    key: gradle_cache
+    paths:
+    - .gradle
+  before_script:
+    - gradle clean
+  script:
+    - gradle build
+  artifacts:
+    name: WAR File
+    paths:
+      - build/libs/$PROJECT_NAME.war
+
+
+# Job 2:
+Test:
+  stage: test
+  script:
+  - gradle test
+  # ToDo: Add coverage
